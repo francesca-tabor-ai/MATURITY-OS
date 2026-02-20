@@ -26,7 +26,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-maturity-classification.sql`  
    `psql $DATABASE_URL -f scripts/schema-financial-impact.sql`  
    `psql $DATABASE_URL -f scripts/schema-roi-investment.sql`  
-   `psql $DATABASE_URL -f scripts/schema-risk-assessment.sql`
+   `psql $DATABASE_URL -f scripts/schema-risk-assessment.sql`  
+   `psql $DATABASE_URL -f scripts/schema-transformation-roadmap.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -77,5 +78,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `risk_assessments` (organisation_id, category scores, overall_score, risk_level, details/inputs JSONB); see `scripts/schema-risk-assessment.sql` and `scripts/queries-risk-assessment.sql`.
 - **API:** `POST/GET /api/organisations/[id]/risk-assessment` (run assessment from form body, list history).
 - **UI:** Organisation → “Risk Assessment”: 4-step form (AI Misalignment, Infrastructure, Operational, Strategic); `RiskAssessmentDisplay` (overall score gauge, risk level badge, category bars); assessment history.
+
+### Module 2.1 – Transformation Roadmap Generator™
+
+- **Engine:** Phased roadmap from current/target data & AI maturity, optional capability gaps (Module 2.2) and financial impact (Module 1.1). `generate_roadmap(inputs)` produces phases (Foundation, Build, Scale) with actions, cost, and projected impact; `prioritize_actions(actions, strategy)` supports highest ROI first, lowest cost first, strategic alignment. See `lib/roadmap-engine.ts` and `lib/roadmap-types.ts`.
+- **Storage:** `transformation_roadmaps` (organisation_id, generation_date, inputs/roadmap JSONB); see `scripts/schema-transformation-roadmap.sql` and `scripts/queries-transformation-roadmap.sql`.
+- **API:** `POST/GET /api/organisations/[id]/roadmap` (generate and store roadmap, list history).
+- **UI:** Organisation → “Transformation Roadmap”: form (current/target maturity, prioritization, optional financial impact); `RoadmapDisplay` (timeline of phases, actions, cost and impact); roadmap history with switch.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

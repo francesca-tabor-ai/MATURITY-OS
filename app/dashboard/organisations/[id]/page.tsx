@@ -68,6 +68,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Risk Assessment →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/roadmap`}
+          className="text-indigo-600 hover:underline"
+        >
+          Transformation Roadmap →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >
