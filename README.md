@@ -132,4 +132,11 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **API:** `POST/GET /api/organisations/[id]/valuation-adjustment`. POST: body current_valuation, optional data/AI maturity (else latest from audits); stores result. GET: list history, or preview when `?current_valuation=&data_maturity_index=&ai_maturity_score=` provided.
 - **UI:** Organisation → “Valuation adjustment”: `ValuationAdjustmentDisplay` (current valuation input, data/AI sliders, real-time preview via GET, current/potential/upside cards, waterfall bars, save and history).
 
+### Module 4.2 – Portfolio Intelligence Dashboard™
+
+- **Service:** Aggregates data for the current user’s portfolio (organisations they can access): latest data maturity, AI maturity, financial impact, ROI, risk assessment, and company valuations. `getPortfolioIntelligenceData(userId, industryFilter)` returns a structured list of companies with all metrics; `analyzePortfolioPerformance(data, options)` computes portfolio-level averages (data/AI maturity, risk), total revenue upside, total valuation upside, and identifies top/bottom performers (by valuation upside, revenue upside, maturity). See `lib/portfolio-intelligence-service.ts` and `lib/portfolio-intelligence-types.ts`.
+- **Queries:** `scripts/queries-portfolio-intelligence.sql` (latest per org from each result table, portfolio list, top N by valuation/revenue, bottom N by maturity).
+- **API:** `GET /api/portfolio-intelligence?industry=` returns a single JSON: `data` (companies with all metrics), `performance` (portfolio KPIs and top/bottom lists), and `distribution` (histograms and stats for maturity charts). Auth: only the signed-in user can access their portfolio.
+- **UI:** Dashboard → “Portfolio Intelligence”: `PortfolioIntelligenceDashboard` (industry filter; KPI cards: company count, avg maturity, total revenue upside, total valuation upside; value creation section: revenue upside, profit expansion, cost reduction; Data and AI maturity histograms; risk exposure heatmap with company cards coloured by risk level; top by valuation upside, top by revenue upside, lowest maturity). Page at `/dashboard/portfolio-intelligence`. All data from one API call.
+
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

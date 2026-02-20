@@ -43,6 +43,12 @@ export default async function DashboardPage() {
         >
           Maturity distribution →
         </Link>
+        <Link
+          href="/dashboard/portfolio-intelligence"
+          className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+        >
+          Portfolio Intelligence →
+        </Link>
       </div>
     </div>
   );
