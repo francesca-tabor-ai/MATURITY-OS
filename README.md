@@ -201,6 +201,7 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 
 - **Gateway:** Central auth (NextAuth session), org-based access control, rate limiting (in-memory per user/IP), and standard error responses. See `lib/api-gateway.ts`.
 - **Base path:** All v1 APIs live under `/api/v1`. Use US spelling in paths: `organizations/{org_id}/...`.
+- **Scoring Engine:** `POST .../scoring/data-maturity`, `POST .../scoring/ai-maturity`, `POST .../scoring/alignment`, `POST .../scoring/risk` (Data/AI maturity from raw inputs; alignment from data + AI scores; risk aggregation with optional weights). See Platform Infrastructure — Scoring Engine below.
 - **Data Maturity:** `POST /api/v1/organizations/{org_id}/data-maturity/audit`, `GET .../data-maturity/score`, `GET .../data-maturity/history`.
 - **AI Maturity:** `POST .../ai-maturity/audit`, `GET .../ai-maturity/score`, `GET .../ai-maturity/history`.
 - **Financial Impact:** `POST .../financial-impact/calculate`, `GET .../financial-impact/results`. **Financial Modelling Engine:** `POST .../financial-model/calculate` runs the orchestrator (RevenueImpactService, CostImpactService, ProfitImpactService) and returns a full report; optional `persist` writes to `financial_impact_results`. **ROI Calculator:** `POST .../roi-calculator/calculate`, `GET .../roi-calculator/results`.
@@ -224,5 +225,11 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Orchestrator:** `RiskModelOrchestrator` runs both services and aggregates into `RiskAssessmentReport`; handles per-service errors. `runRiskModel(inputs)` one-shot.
 - **API:** `POST /api/v1/organizations/{org_id}/risk-model/calculate` — body: probability_inputs (project_complexity, team_experience_years, etc.), loss_inputs (direct_cost_if_failure, indirect, reputational, mitigation_cost), optional initiative_name, persist (default true). Returns full report; when persist is true, writes to `risk_model_results`.
 - **PostgreSQL:** `scripts/schema-risk-model.sql` creates `risk_model_results` (organisation_id, initiative_name, probability_of_failure, expected_financial_loss, risk_tier, details JSONB). `scripts/risk-modelling-persistence.sql` defines `insert_risk_model_result(...)`. `scripts/queries-risk-modelling.sql` has optimized retrieval for latest and trend.
+
+### Platform Infrastructure — Scoring Engine
+
+- **Services (TypeScript):** `DataMaturityScoringService` (raw audit inputs → maturity_stage, confidence_score, maturity_index). `AIMaturityScoringService` (raw audit inputs → maturity_stage, maturity_score). `calculate_alignment_score(data_maturity_index, ai_maturity_score, strategic_objectives?)` → alignment_score 0-100 and assessment (Well-aligned, Moderately aligned, Needs improvement, Misaligned). `RiskScoringService` (category_scores or full inputs + optional weights → overall_risk_score, risk_level, category_scores). See `lib/scoring-engine.ts` and `lib/scoring-engine-types.ts`. Risk aggregation uses `aggregateRiskScores()` in `lib/risk-assessment-engine.ts` with configurable weights.
+- **API:** `POST .../scoring/data-maturity`, `POST .../scoring/ai-maturity`, `POST .../scoring/alignment`, `POST .../scoring/risk`. All require org auth.
+- **PostgreSQL:** `scripts/scoring-persistence.sql` defines `insert_data_maturity_score`, `insert_ai_maturity_score`, `insert_maturity_classification`, `insert_risk_assessment`. `scripts/queries-scoring.sql` has optimized retrieval for latest Data Maturity, AI Maturity, Classification, Risk, and combined “all four” query; plus historical trend queries.
 
 Deploy to Vercel with the same env vars (`DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, etc.); use [vercel.json](vercel.json) for security headers. API routes run as serverless functions; for cross-instance rate limiting consider Upstash Redis.

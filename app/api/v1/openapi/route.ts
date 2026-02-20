@@ -13,6 +13,50 @@ export async function GET() {
     servers: [{ url: `${baseUrl}/api/v1`, description: 'API v1' }],
     security: [{ sessionCookie: [] }],
     paths: {
+      '/organizations/{org_id}/scoring/data-maturity': {
+        post: {
+          summary: 'Calculate Data Maturity Score (stage, confidence, index) from raw audit inputs',
+          operationId: 'postScoringDataMaturity',
+          tags: ['Scoring Engine'],
+          security: [{ sessionCookie: [] }],
+          parameters: [{ name: 'org_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { collection: { type: 'object' }, storage: { type: 'object' }, integration: { type: 'object' }, governance: { type: 'object' }, accessibility: { type: 'object' } } } } } },
+          responses: { '200': { description: 'Data maturity score result' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
+        },
+      },
+      '/organizations/{org_id}/scoring/ai-maturity': {
+        post: {
+          summary: 'Calculate AI Maturity Score (stage, score) from raw audit inputs',
+          operationId: 'postScoringAIMaturity',
+          tags: ['Scoring Engine'],
+          security: [{ sessionCookie: [] }],
+          parameters: [{ name: 'org_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { automation: { type: 'object' }, ai_usage: { type: 'object' }, deployment: { type: 'object' } } } } } },
+          responses: { '200': { description: 'AI maturity score result' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
+        },
+      },
+      '/organizations/{org_id}/scoring/alignment': {
+        post: {
+          summary: 'Calculate Alignment Score (data + AI maturity vs strategy)',
+          operationId: 'postScoringAlignment',
+          tags: ['Scoring Engine'],
+          security: [{ sessionCookie: [] }],
+          parameters: [{ name: 'org_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { data_maturity_index: { type: 'number' }, ai_maturity_score: { type: 'number' }, strategic_objectives: { type: 'object' } } } } } },
+          responses: { '200': { description: 'Alignment score and qualitative assessment' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
+        },
+      },
+      '/organizations/{org_id}/scoring/risk': {
+        post: {
+          summary: 'Aggregate risk category scores (optional custom weights)',
+          operationId: 'postScoringRisk',
+          tags: ['Scoring Engine'],
+          security: [{ sessionCookie: [] }],
+          parameters: [{ name: 'org_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { category_scores: { type: 'object' }, inputs: { type: 'object' }, weights: { type: 'object' } } } } } },
+          responses: { '200': { description: 'Overall risk score and level' }, '400': { description: 'Provide category_scores or inputs' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
+        },
+      },
       '/organizations/{org_id}/data-maturity/audit': {
         post: {
           summary: 'Submit data maturity audit',

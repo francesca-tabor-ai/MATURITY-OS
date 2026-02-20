@@ -96,6 +96,24 @@ export function scoreToRiskLevel(score: number): RiskLevel {
   return 'HIGH';
 }
 
+/** Aggregate category scores with optional weights (default 0.25 each). Weights are normalized to sum to 1. */
+export function aggregateRiskScores(
+  scores: { ai_misalignment: number; infrastructure: number; operational: number; strategic: number },
+  weights?: { ai_misalignment?: number; infrastructure?: number; operational?: number; strategic?: number }
+): { overall_risk_score: number; risk_level: RiskLevel } {
+  const w = weights ?? WEIGHTS;
+  const sum = (w.ai_misalignment ?? 0) + (w.infrastructure ?? 0) + (w.operational ?? 0) + (w.strategic ?? 0);
+  const norm = sum > 0 ? sum : 1;
+  const overall =
+    (scores.ai_misalignment * (w.ai_misalignment ?? 0.25) +
+      scores.infrastructure * (w.infrastructure ?? 0.25) +
+      scores.operational * (w.operational ?? 0.25) +
+      scores.strategic * (w.strategic ?? 0.25)) /
+    norm;
+  const overall_risk_score = Math.round(clamp(overall, 0, 100));
+  return { overall_risk_score, risk_level: scoreToRiskLevel(overall_risk_score) };
+}
+
 export class RiskAssessmentEngine {
   private inputs: RiskAssessmentInputs;
 
