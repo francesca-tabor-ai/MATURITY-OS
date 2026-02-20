@@ -1,0 +1,21 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "env": {
+    "NEXTAUTH_URL": "@maturity_os_nextauth_url",
+    "NEXTAUTH_SECRET": "@maturity_os_nextauth_secret",
+    "DATABASE_URL": "@maturity_os_database_url"
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { queryOne } from '@/lib/db';
+import { notFound } from 'next/navigation';
+import { OrganisationProfile } from '@/components/organisation-profile';
+
+export default async function OrganisationPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return null;
+  const { id } = await params;
+  const canAccess = await queryOne(
+    'SELECT id FROM user_organisations WHERE user_id = $1 AND organisation_id = $2',
+    [session.user.id, id]
+  );
+  if (!canAccess) notFound();
+  type OrgRow = { id: string; name: string; slug: string | null; company_size: string | null; industry: string | null; revenue: string | null; geography: string | null; employee_count: number | null; metadata: Record<string, unknown> };
+  const org = await queryOne<OrgRow>(
+    'SELECT id, name, slug, company_size, industry, revenue, geography, employee_count, metadata FROM organisations WHERE id = $1',
+    [id]
+  );
+  if (!org) notFound();
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/dashboard/organisations" className="text-zinc-500 hover:text-zinc-900 text-sm">
+          ← Organisations
+        </Link>
+      </div>
+      <h1 className="text-2xl font-bold text-zinc-900 mb-2">{org.name}</h1>
+      <p className="text-zinc-600 mb-8">Organisation profile</p>
+      <OrganisationProfile org={org} />
+      <div className="mt-8 flex gap-4">
+        <Link
+          href={`/dashboard/organisations/${id}/team`}
+          className="text-indigo-600 hover:underline"
+        >
+          Team & invitations →
+        </Link>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Env (keep .env.example)
+.env
+.env.local
+.env.*.local
+
+# Debug
+npm-debug.log*
+.pnp
+.pnp.js
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Vercel
+.vercel
