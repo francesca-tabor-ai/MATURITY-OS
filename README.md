@@ -30,7 +30,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-transformation-roadmap.sql`  
    `psql $DATABASE_URL -f scripts/schema-capability-gaps.sql`  
    `psql $DATABASE_URL -f scripts/schema-industry-benchmarks.sql`  
-   `psql $DATABASE_URL -f scripts/schema-competitive-position.sql`
+   `psql $DATABASE_URL -f scripts/schema-competitive-position.sql`  
+   `psql $DATABASE_URL -f scripts/schema-company-valuation.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -123,5 +124,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `competitive_positions` (organisation_id, analysis_date, competitive_risk_level, competitive_risk_score, competitive_advantage_score, comparison_data JSONB). See `scripts/schema-competitive-position.sql` and `scripts/queries-competitive-position.sql`.
 - **API:** `GET /api/organisations/[id]/competitive-position?competitors=id1,id2` or `?industry=` — uses portfolio orgs (or industry filter), runs analysis, stores result, returns report + industries list.
 - **UI:** Organisation → “Competitive Position”: `CompetitivePositionDisplay` (advantage speedometer, risk badge, 2D matrix Data vs AI, comparison table, strengths/weaknesses, industry filter).
+
+### Module 4.1 – Company Valuation Adjustment Engine™
+
+- **Engine:** Maturity-adjusted valuation: potential = current × (1 + uplift). Uplift from average data/AI maturity vs 50; optional industry multiplier. `calculate_valuation_adjustment(inputs)` returns potential valuation and upside; `run_valuation_sensitivity_analysis(baseInputs, options)` returns a grid of scenarios for charting. See `lib/valuation-adjustment-engine.ts` and `lib/valuation-adjustment-types.ts`.
+- **Storage:** `company_valuations` (organisation_id, analysis_date, current_valuation, data_maturity_index, ai_maturity_score, potential_valuation, valuation_upside, valuation_upside_pct, details). See `scripts/schema-company-valuation.sql` and `scripts/queries-company-valuation.sql`.
+- **API:** `POST/GET /api/organisations/[id]/valuation-adjustment`. POST: body current_valuation, optional data/AI maturity (else latest from audits); stores result. GET: list history, or preview when `?current_valuation=&data_maturity_index=&ai_maturity_score=` provided.
+- **UI:** Organisation → “Valuation adjustment”: `ValuationAdjustmentDisplay` (current valuation input, data/AI sliders, real-time preview via GET, current/potential/upside cards, waterfall bars, save and history).
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

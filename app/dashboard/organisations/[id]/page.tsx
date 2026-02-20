@@ -98,6 +98,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Competitive Position →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/valuation-adjustment`}
+          className="text-indigo-600 hover:underline"
+        >
+          Valuation adjustment →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >
