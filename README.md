@@ -23,7 +23,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-identity.sql`  
    `psql $DATABASE_URL -f scripts/schema-data-maturity.sql`  
    `psql $DATABASE_URL -f scripts/schema-ai-maturity.sql`  
-   `psql $DATABASE_URL -f scripts/schema-maturity-classification.sql`
+   `psql $DATABASE_URL -f scripts/schema-maturity-classification.sql`  
+   `psql $DATABASE_URL -f scripts/schema-financial-impact.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -53,5 +54,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `maturity_classifications` table; see `scripts/schema-maturity-classification.sql` and `scripts/queries-maturity-classification.sql`.
 - **API:** `GET/POST /api/classify-maturity` (query or body: `data_maturity_index`, `ai_maturity_score`) returns classification only. `POST/GET /api/organisations/[id]/classify` runs classification (from latest audits or manual scores), stores result, returns and lists history.
 - **UI:** Organisation → “Maturity Classification”: run from latest audits or enter scores; `MaturityClassificationDisplay` (classification, matrix coords, risk, opportunity) and interactive 2D matrix with position marker; classification history table.
+
+### Module 1.1 – Financial Impact Engine™
+
+- **Engine:** Revenue upside, profit margin expansion, and cost reduction from data/AI maturity. Rule-based model using maturity gap vs. 100; industry benchmarks scale results. See `lib/financial-impact-engine.ts` and `lib/industry-benchmarks.ts`.
+- **Storage:** `financial_impact_results` (inputs + outputs); see `scripts/schema-financial-impact.sql` and `scripts/queries-financial-impact.sql`.
+- **API:** `POST/GET /api/organisations/[id]/financial-impact` (run with body inputs, list history).
+- **UI:** Organisation → “Financial Impact”: form (revenue, profit margin, headcount, optional operational cost, industry benchmark, data/AI maturity scores); prefill maturity from latest audits; `FinancialImpactDashboard` (revenue upside, margin expansion value, cost reduction, breakdown bars, total impact); previous runs list.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
