@@ -21,7 +21,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    - Optional: `SENDGRID_API_KEY` and `SENDGRID_FROM_EMAIL` for password reset and team invites
 3. Apply the database schemas:  
    `psql $DATABASE_URL -f scripts/schema-identity.sql`  
-   `psql $DATABASE_URL -f scripts/schema-data-maturity.sql`
+   `psql $DATABASE_URL -f scripts/schema-data-maturity.sql`  
+   `psql $DATABASE_URL -f scripts/schema-ai-maturity.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -37,5 +38,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `data_audit_inputs` (raw JSON per category), `data_maturity_results` (scores and aggregates); see `scripts/schema-data-maturity.sql` and `scripts/queries-data-maturity.sql`.
 - **API:** `POST/GET /api/organisations/[id]/data-audit` (submit inputs + run audit, list results), `GET /api/organisations/[id]/data-audit/[resultId]` (single result with inputs).
 - **UI:** Organisation → “Data Maturity Audit”: 5-step form (one per category), then run audit; dashboard with stage, index gauge, confidence bar, and category score bars; audit history with “View” for past results.
+
+### Core Module 0.3 – AI Maturity Audit Engine™
+
+- **Engine:** Rule-based scoring for Automation Maturity, AI Usage (predictive, recommendations, NLP, computer vision), and Deployment Maturity (experimental vs production, scope, decision automation). Produces AI Maturity Stage (1–7) and AI Maturity Score (0–100). See `lib/ai-maturity-engine.ts` and `lib/ai-maturity-types.ts`.
+- **Storage:** `ai_audit_inputs`, `ai_maturity_results`; see `scripts/schema-ai-maturity.sql` and `scripts/queries-ai-maturity.sql`.
+- **API:** `POST/GET /api/organisations/[id]/ai-audit`, `GET /api/organisations/[id]/ai-audit/[resultId]`.
+- **UI:** Organisation → “AI Maturity Audit”: 3-step form (Automation, AI Usage, Deployment), run audit; dashboard with stage, score gauge, and category bars; audit history.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

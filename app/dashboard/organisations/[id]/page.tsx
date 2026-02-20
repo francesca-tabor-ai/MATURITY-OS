@@ -38,6 +38,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Data Maturity Audit →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/ai-audit`}
+          className="text-indigo-600 hover:underline"
+        >
+          AI Maturity Audit →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >
