@@ -28,7 +28,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-roi-investment.sql`  
    `psql $DATABASE_URL -f scripts/schema-risk-assessment.sql`  
    `psql $DATABASE_URL -f scripts/schema-transformation-roadmap.sql`  
-   `psql $DATABASE_URL -f scripts/schema-capability-gaps.sql`
+   `psql $DATABASE_URL -f scripts/schema-capability-gaps.sql`  
+   `psql $DATABASE_URL -f scripts/schema-industry-benchmarks.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -100,5 +101,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Queries:** `scripts/queries-executive-dashboard.sql` (latest per org, optional historical trends).
 - **API:** `GET /api/organisations/[id]/executive-dashboard` returns a single JSON with maturity, classification, financial, roi, risk, roadmap.
 - **UI:** Organisation → “Executive Dashboard”: `ExecutiveDashboard` (KPI cards: Data/AI maturity, financial impact, risk score; maturity quadrant; financial breakdown bars; risk meter and category bars; roadmap summary; optional ROI). Fetches all data from one endpoint.
+
+### Module 3.1 – Industry Benchmark Engine™
+
+- **Engine:** Compares org data/AI maturity to industry peers. `get_industry_benchmarks(industry, maturityType)` retrieves average scores (DB or built-in defaults); `compare_to_benchmarks(orgData, orgAI, dataBench, aiBench)` returns Above/At/Below average and % difference; `IndustryBenchmarkEngine` (org ID + industry) fetches latest maturity, gets benchmarks, and produces a report (strengths/weaknesses). See `lib/industry-benchmark-engine.ts` and `lib/industry-benchmark-types.ts`.
+- **Storage:** `industry_benchmarks` (industry_name, maturity_type, average_score, score_distribution JSONB); `organisation_benchmarks` (per-run comparison results). See `scripts/schema-industry-benchmarks.sql` and `scripts/queries-industry-benchmarks.sql`.
+- **API:** `GET /api/organisations/[id]/industry-benchmarks` (optional `?industry=`). Runs comparison, stores result, returns report JSON.
+- **UI:** Organisation → “Industry Benchmarks”: `IndustryBenchmarkDisplay` (comparative bar charts Data/AI vs industry, Above/At/Below badges, strengths and areas to improve). Fetches from API.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

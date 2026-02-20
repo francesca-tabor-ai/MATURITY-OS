@@ -86,6 +86,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Executive Dashboard →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/industry-benchmarks`}
+          className="text-indigo-600 hover:underline"
+        >
+          Industry Benchmarks →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >
