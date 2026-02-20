@@ -24,7 +24,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-data-maturity.sql`  
    `psql $DATABASE_URL -f scripts/schema-ai-maturity.sql`  
    `psql $DATABASE_URL -f scripts/schema-maturity-classification.sql`  
-   `psql $DATABASE_URL -f scripts/schema-financial-impact.sql`
+   `psql $DATABASE_URL -f scripts/schema-financial-impact.sql`  
+   `psql $DATABASE_URL -f scripts/schema-roi-investment.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -61,5 +62,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `financial_impact_results` (inputs + outputs); see `scripts/schema-financial-impact.sql` and `scripts/queries-financial-impact.sql`.
 - **API:** `POST/GET /api/organisations/[id]/financial-impact` (run with body inputs, list history).
 - **UI:** Organisation → “Financial Impact”: form (revenue, profit margin, headcount, optional operational cost, industry benchmark, data/AI maturity scores); prefill maturity from latest audits; `FinancialImpactDashboard` (revenue upside, margin expansion value, cost reduction, breakdown bars, total impact); previous runs list.
+
+### Module 1.2 – ROI & Investment Calculator™
+
+- **Engine:** Required investment (data + AI) from maturity gap (cost per point); expected ROI = (benefits / investment) as % and multiplier; payback period = investment / annual benefits. `ROIInvestmentCalculator` with `scenario(targetData, targetAi)` for scenario analysis. See `lib/roi-investment-engine.ts`.
+- **Storage:** `roi_investment_results`; see `scripts/schema-roi-investment.sql` and `scripts/queries-roi-investment.sql`.
+- **API:** `POST/GET /api/organisations/[id]/roi-investment`.
+- **UI:** Organisation → “ROI & Investment”: form (current/target data & AI maturity 0–100, estimated financial benefits, optional annual benefits); prefill from latest Data/AI audits and Financial Impact; `ROIResultsDisplay` (total investment, ROI %, multiplier, payback years/months, investment breakdown bar); previous scenarios list.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

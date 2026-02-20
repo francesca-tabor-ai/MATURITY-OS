@@ -56,6 +56,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Financial Impact →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/roi-investment`}
+          className="text-indigo-600 hover:underline"
+        >
+          ROI & Investment →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >
