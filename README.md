@@ -35,7 +35,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-acquisition-opportunities.sql`  
    `psql $DATABASE_URL -f scripts/schema-maturity-snapshots.sql`  
    `psql $DATABASE_URL -f scripts/schema-data-connectors.sql`  
-   `psql $DATABASE_URL -f scripts/schema-maturity-goals.sql`
+   `psql $DATABASE_URL -f scripts/schema-maturity-goals.sql`  
+   `psql $DATABASE_URL -f scripts/schema-ai-investment-simulations.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -171,5 +172,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `maturity_goals` (organisation_id, goal_type 'data'|'ai', target_score, target_date); UNIQUE(organisation_id, goal_type). See `scripts/schema-maturity-goals.sql` and `scripts/queries-maturity-progress.sql`.
 - **API:** `GET /api/organisations/[id]/maturity-progress?from=&to=` returns progress (improvement %, milestones), goals, goal_tracking (variance, projected date, on_track), current scores, and history for charts. `POST /api/organisations/[id]/maturity-progress` body `goal_type`, `target_score`, `target_date` to set/update a goal.
 - **UI:** Organisation → “Maturity progress”: `MaturityProgressTracker` (from/to date range, Update; improvement % cards; line graph of maturity trend; goals section with progress bars, Set goal form, on-track/behind and projected date). Page at `/dashboard/organisations/[id]/maturity-progress`.
+
+### Module 6.1 – AI Investment Simulation Engine™
+
+- **Engine:** `simulate_investment_impact(input, currentData, currentAi, options)` models maturity improvement from investment with diminishing returns and delay; projects profit and revenue increase from maturity gain. `compare_investment_scenarios(results)` ranks scenarios by impact and cost-effectiveness, adds risk indicator. See `lib/investment-simulation-engine.ts` and `lib/investment-simulation-types.ts`.
+- **Storage:** `ai_investment_simulations` (organisation_id, simulation_date, investment_amount, target_area, time_horizon_years, simulated_*_improvement, projected_profit_increase, projected_revenue_increase, details JSONB). See `scripts/schema-ai-investment-simulations.sql` and `scripts/queries-ai-investment-simulations.sql`.
+- **API:** `GET /api/organisations/[id]/investment-simulation` returns current data/AI maturity and optional revenue/margin for prefill. `POST` body `{ scenarios: [...], save?: boolean }` runs simulation for each scenario, optionally compares and saves; returns results and comparison.
+- **UI:** Organisation → “Investment simulation”: `InvestmentSimulationForm` (context display; add/remove scenarios with investment amount, target area, time horizon; Run simulation; save checkbox; bar chart of projected profit by scenario with best highlighted; results table with return/unit, time to benefit, risk). Page at `/dashboard/organisations/[id]/investment-simulation`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
