@@ -157,6 +157,17 @@ export async function GET() {
           responses: { '200': { description: 'Latest result' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
         },
       },
+      '/organizations/{org_id}/risk-model/calculate': {
+        post: {
+          summary: 'Run risk model (probability of failure + expected financial loss)',
+          operationId: 'postRiskModelCalculate',
+          tags: ['Risk Modelling'],
+          security: [{ sessionCookie: [] }],
+          parameters: [{ name: 'org_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { initiative_name: { type: 'string' }, probability_inputs: { type: 'object', properties: { project_complexity: { type: 'string', enum: ['low', 'medium', 'high'] }, team_experience_years: { type: 'number' }, infrastructure_stability_rating: { type: 'number' }, historical_failure_rate: { type: 'number' }, scope_uncertainty: { type: 'number' } } }, loss_inputs: { type: 'object', properties: { direct_cost_if_failure: { type: 'number' }, indirect_cost_if_failure: { type: 'number' }, reputational_damage_estimate: { type: 'number' }, mitigation_cost: { type: 'number' } } }, persist: { type: 'boolean' } } } } } },
+          responses: { '200': { description: 'Risk assessment report (probability_of_failure, expected_financial_loss, summary)' }, '400': { description: 'Invalid input' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
+        },
+      },
       '/organizations/{org_id}/roadmap/generate': {
         post: {
           summary: 'Generate transformation roadmap',

@@ -38,7 +38,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-maturity-goals.sql`  
    `psql $DATABASE_URL -f scripts/schema-ai-investment-simulations.sql`  
    `psql $DATABASE_URL -f scripts/schema-strategic-simulations.sql`  
-   `psql $DATABASE_URL -f scripts/schema-digital-twin.sql`
+   `psql $DATABASE_URL -f scripts/schema-digital-twin.sql`  
+   `psql $DATABASE_URL -f scripts/schema-risk-model.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -203,7 +204,7 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Data Maturity:** `POST /api/v1/organizations/{org_id}/data-maturity/audit`, `GET .../data-maturity/score`, `GET .../data-maturity/history`.
 - **AI Maturity:** `POST .../ai-maturity/audit`, `GET .../ai-maturity/score`, `GET .../ai-maturity/history`.
 - **Financial Impact:** `POST .../financial-impact/calculate`, `GET .../financial-impact/results`. **Financial Modelling Engine:** `POST .../financial-model/calculate` runs the orchestrator (RevenueImpactService, CostImpactService, ProfitImpactService) and returns a full report; optional `persist` writes to `financial_impact_results`. **ROI Calculator:** `POST .../roi-calculator/calculate`, `GET .../roi-calculator/results`.
-- **Risk Assessment:** `POST .../risk-assessment/calculate`, `GET .../risk-assessment/results`.
+- **Risk Assessment:** `POST .../risk-assessment/calculate`, `GET .../risk-assessment/results`. **Risk Modelling Engine:** `POST .../risk-model/calculate` runs the orchestrator (ProbabilityOfFailureService, ExpectedFinancialLossService) and returns probability of failure (0-1, confidence interval) and expected financial loss; optional `persist` writes to `risk_model_results`.
 - **Roadmap:** `POST .../roadmap/generate`, `GET .../roadmap/latest`.
 - **Simulations:** `POST .../simulate/ai-investment`, `POST .../simulate/strategic-decision`.
 - **External:** `GET /api/v1/investors/{investor_id}/portfolio-summary` (aggregated portfolio for that user), `GET /api/v1/consultants/{consultant_id}/organization-report/{org_id}` (org report; caller must be consultant and have org access).
@@ -216,5 +217,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Orchestrator:** `FinancialModelOrchestrator` runs the three services, aggregates into `FinancialImpactReport`, and handles per-service errors with partial results. `runFinancialModel(inputs)` one-shot helper.
 - **API:** `POST /api/v1/organizations/{org_id}/financial-model/calculate` — body: revenue, profit_margin_pct, headcount, data_maturity_index, ai_maturity_score, optional operational_cost, industry_growth_rate_pct, tax_rate_pct, industry_benchmark_id, persist (default true). Returns full report; when persist is true, writes to `financial_impact_results` with orchestrator details in JSONB.
 - **PostgreSQL:** `scripts/financial-modelling-persistence.sql` defines `insert_financial_impact_result(...)` for inserts. `scripts/queries-financial-modelling.sql` has optimized queries for latest metrics and historical trend; index on `(organisation_id, created_at DESC)` recommended.
+
+### Platform Infrastructure — Risk Modelling Engine
+
+- **Services (TypeScript):** `ProbabilityOfFailureService` (project_complexity, team_experience_years, infrastructure_stability_rating, historical_failure_rate, scope_uncertainty → probability 0-1, confidence_interval_low/high, risk_tier). `ExpectedFinancialLossService` (probability_of_failure, direct/indirect/reputational impact, mitigation_cost → expected_financial_loss, loss_before_mitigation, sensitivity). See `lib/risk-modelling-engine.ts` and `lib/risk-modelling-types.ts`.
+- **Orchestrator:** `RiskModelOrchestrator` runs both services and aggregates into `RiskAssessmentReport`; handles per-service errors. `runRiskModel(inputs)` one-shot.
+- **API:** `POST /api/v1/organizations/{org_id}/risk-model/calculate` — body: probability_inputs (project_complexity, team_experience_years, etc.), loss_inputs (direct_cost_if_failure, indirect, reputational, mitigation_cost), optional initiative_name, persist (default true). Returns full report; when persist is true, writes to `risk_model_results`.
+- **PostgreSQL:** `scripts/schema-risk-model.sql` creates `risk_model_results` (organisation_id, initiative_name, probability_of_failure, expected_financial_loss, risk_tier, details JSONB). `scripts/risk-modelling-persistence.sql` defines `insert_risk_model_result(...)`. `scripts/queries-risk-modelling.sql` has optimized retrieval for latest and trend.
 
 Deploy to Vercel with the same env vars (`DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, etc.); use [vercel.json](vercel.json) for security headers. API routes run as serverless functions; for cross-instance rate limiting consider Upstash Redis.
