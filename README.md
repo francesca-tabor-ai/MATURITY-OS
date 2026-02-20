@@ -25,7 +25,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-ai-maturity.sql`  
    `psql $DATABASE_URL -f scripts/schema-maturity-classification.sql`  
    `psql $DATABASE_URL -f scripts/schema-financial-impact.sql`  
-   `psql $DATABASE_URL -f scripts/schema-roi-investment.sql`
+   `psql $DATABASE_URL -f scripts/schema-roi-investment.sql`  
+   `psql $DATABASE_URL -f scripts/schema-risk-assessment.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -69,5 +70,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `roi_investment_results`; see `scripts/schema-roi-investment.sql` and `scripts/queries-roi-investment.sql`.
 - **API:** `POST/GET /api/organisations/[id]/roi-investment`.
 - **UI:** Organisation → “ROI & Investment”: form (current/target data & AI maturity 0–100, estimated financial benefits, optional annual benefits); prefill from latest Data/AI audits and Financial Impact; `ROIResultsDisplay` (total investment, ROI %, multiplier, payback years/months, investment breakdown bar); previous scenarios list.
+
+### Module 1.3 – Risk Assessment Engine™
+
+- **Engine:** Four risk categories (AI Misalignment, Infrastructure, Operational, Strategic) scored 0–100; overall risk score (0–100) and qualitative level (LOW &lt; 35, MEDIUM &lt; 65, HIGH). Equal weights; summary of high-risk areas. See `lib/risk-assessment-engine.ts` and `lib/risk-assessment-types.ts`.
+- **Storage:** `risk_assessments` (organisation_id, category scores, overall_score, risk_level, details/inputs JSONB); see `scripts/schema-risk-assessment.sql` and `scripts/queries-risk-assessment.sql`.
+- **API:** `POST/GET /api/organisations/[id]/risk-assessment` (run assessment from form body, list history).
+- **UI:** Organisation → “Risk Assessment”: 4-step form (AI Misalignment, Infrastructure, Operational, Strategic); `RiskAssessmentDisplay` (overall score gauge, risk level badge, category bars); assessment history.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
