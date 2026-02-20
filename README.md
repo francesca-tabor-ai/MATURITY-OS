@@ -37,7 +37,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-data-connectors.sql`  
    `psql $DATABASE_URL -f scripts/schema-maturity-goals.sql`  
    `psql $DATABASE_URL -f scripts/schema-ai-investment-simulations.sql`  
-   `psql $DATABASE_URL -f scripts/schema-strategic-simulations.sql`
+   `psql $DATABASE_URL -f scripts/schema-strategic-simulations.sql`  
+   `psql $DATABASE_URL -f scripts/schema-digital-twin.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -187,5 +188,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `strategic_simulations` (organisation_id, simulation_date, scenario_name, scenario_parameters JSONB, simulated_outcomes JSONB). See `scripts/schema-strategic-simulations.sql` and `scripts/queries-strategic-simulations.sql`.
 - **API:** `GET /api/organisations/[id]/strategic-simulation` returns context (current maturity, revenue, profit). `POST` body `{ scenarios: [{ name, parameters }], save?: boolean }` runs simulator for each scenario, runs outcome analysis, optionally saves; returns outcomes and analysis.
 - **UI:** Organisation → “Strategic simulator”: `ScenarioBuilder` (add/remove scenarios; name, investment level, pace, market, competition, years; Run simulation); `ScenarioComparisonDisplay` (multi-line charts: maturity and profit over time; bar chart end-state profit; summary table; recommendations). Page at `/dashboard/organisations/[id]/strategic-simulation`.
+
+### Module 6.3 – Enterprise Digital Twin™
+
+- **Engine:** `buildDigitalTwinState(context)` builds a full twin state (maturity, financial, risk, capabilities, roadmap, nodes, edges) from integrated MATURITY OS data. `EnterpriseDigitalTwin` class holds state; `simulate_digital_twin_state(future_months, interventions)` predicts state at a future time using causal relationships; `optimize_digital_twin_path(goal)` returns an optimized transformation plan (goal types: ai_maturity_stage, data_maturity_stage, profit_increase_pct, risk_reduction, revenue_increase_pct). See `lib/digital-twin-engine.ts` and `lib/digital-twin-types.ts`.
+- **Storage:** `digital_twin_states` (organisation_id, captured_at, scenario_label, state JSONB). See `scripts/schema-digital-twin.sql` and `scripts/queries-digital-twin.sql`.
+- **API:** `GET /api/organisations/[id]/digital-twin` returns current twin state (built from latest maturity, financial, risk, capability, roadmap data). `POST` body `{ action: 'simulate'|'optimize'|'save_snapshot', ... }`: simulate (future_months, interventions, save?), optimize (goal), or save current state with optional label.
+- **UI:** Organisation → “Digital twin”: `DigitalTwinViewer` (current state KPIs, radar, node/edge graph; simulate future state; run path optimization; view recommended plan with trade-offs and risks). Page at `/dashboard/organisations/[id]/digital-twin`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
