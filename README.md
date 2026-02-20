@@ -109,4 +109,11 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **API:** `GET /api/organisations/[id]/industry-benchmarks` (optional `?industry=`). Runs comparison, stores result, returns report JSON.
 - **UI:** Organisation → “Industry Benchmarks”: `IndustryBenchmarkDisplay` (comparative bar charts Data/AI vs industry, Above/At/Below badges, strengths and areas to improve). Fetches from API.
 
+### Module 3.2 – Maturity Distribution Visualisation™
+
+- **Service:** Aggregates latest data and AI maturity scores for a set of organisations (user’s portfolio, optionally filtered by industry). `aggregate_maturity_data(organisationIds, industryFilter)` returns score arrays; `analyze_maturity_distribution(scores)` computes mean, median, std dev, quartiles, and outliers (IQR). See `lib/maturity-distribution-service.ts` and `lib/maturity-distribution-types.ts`.
+- **Queries:** `scripts/queries-maturity-distribution.sql` (latest maturity per org, portfolio by industry).
+- **API:** `GET /api/maturity-distribution?industry=` returns aggregated scores, statistical analysis, and list of industries for filter. Uses organisations the current user can access.
+- **UI:** Dashboard → “Maturity distribution”: `MaturityDistributionChart` (Recharts histograms for Data and AI maturity, industry filter, stats cards with mean/median/std/Q1–Q3/outliers). Page at `/dashboard/maturity-distribution`.
+
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

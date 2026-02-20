@@ -30,12 +30,20 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
-      <Link
-        href="/dashboard/organisations/new"
-        className="mt-6 inline-flex items-center gap-2 text-indigo-600 hover:underline"
-      >
-        + Add organisation
-      </Link>
+      <div className="mt-6 flex flex-wrap gap-4">
+        <Link
+          href="/dashboard/organisations/new"
+          className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+        >
+          + Add organisation
+        </Link>
+        <Link
+          href="/dashboard/maturity-distribution"
+          className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+        >
+          Maturity distribution →
+        </Link>
+      </div>
     </div>
   );
 }
