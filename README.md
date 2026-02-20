@@ -94,4 +94,11 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **API:** `POST/GET /api/organisations/[id]/capability-gaps` (run analysis from data/AI maturity, list stored gaps).
 - **UI:** Organisation → “Capability Gap Analysis”: run from latest audits; `CapabilityGapDisplay` (radar chart current vs ideal, gaps by theme with priority, tag cloud); analysis history.
 
+### Module 2.3 – Executive Dashboard™
+
+- **Service:** Aggregates latest data from Data Maturity (0.2), AI Maturity (0.3), Classification (0.4), Financial Impact (1.1), ROI (1.2), Risk Assessment (1.3), and Transformation Roadmap (2.1). `getExecutiveDashboardData(orgId)` fetches from all result tables; `prepare_dashboard_data()` formats numbers and structures payload for the UI. See `lib/executive-dashboard-service.ts` and `lib/executive-dashboard-types.ts`.
+- **Queries:** `scripts/queries-executive-dashboard.sql` (latest per org, optional historical trends).
+- **API:** `GET /api/organisations/[id]/executive-dashboard` returns a single JSON with maturity, classification, financial, roi, risk, roadmap.
+- **UI:** Organisation → “Executive Dashboard”: `ExecutiveDashboard` (KPI cards: Data/AI maturity, financial impact, risk score; maturity quadrant; financial breakdown bars; risk meter and category bars; roadmap summary; optional ROI). Fetches all data from one endpoint.
+
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
