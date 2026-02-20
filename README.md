@@ -19,7 +19,9 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    - `NEXTAUTH_SECRET` – random string (e.g. `openssl rand -base64 32`)
    - Optional: `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`, `GITHUB_ID` / `GITHUB_SECRET` for OAuth
    - Optional: `SENDGRID_API_KEY` and `SENDGRID_FROM_EMAIL` for password reset and team invites
-3. Apply the database schema: `psql $DATABASE_URL -f scripts/schema-identity.sql`
+3. Apply the database schemas:  
+   `psql $DATABASE_URL -f scripts/schema-identity.sql`  
+   `psql $DATABASE_URL -f scripts/schema-data-maturity.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -28,5 +30,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **RBAC:** Roles Executive, Analyst, Investor, Consultant; middleware protects dashboard and org routes.
 - **Organisations:** CRUD, multi-org membership, switch active org; profile fields (company size, industry, revenue, geography, employee count).
 - **Team:** Invite by email (SendGrid optional; without it, invite links are logged server-side for dev), accept at `/invite/accept?token=...`; team table and role management.
+
+### Core Module 0.2 – Data Maturity Audit Engine™
+
+- **Engine:** Rule-based scoring for Data Collection, Storage, Integration, Governance, and Accessibility (TypeScript in `lib/data-maturity-engine.ts`). Produces Data Maturity Stage (1–6), Confidence Score (0–1), and Maturity Index (0–100).
+- **Storage:** `data_audit_inputs` (raw JSON per category), `data_maturity_results` (scores and aggregates); see `scripts/schema-data-maturity.sql` and `scripts/queries-data-maturity.sql`.
+- **API:** `POST/GET /api/organisations/[id]/data-audit` (submit inputs + run audit, list results), `GET /api/organisations/[id]/data-audit/[resultId]` (single result with inputs).
+- **UI:** Organisation → “Data Maturity Audit”: 5-step form (one per category), then run audit; dashboard with stage, index gauge, confidence bar, and category score bars; audit history with “View” for past results.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

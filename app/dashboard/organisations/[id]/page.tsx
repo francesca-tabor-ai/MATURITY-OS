@@ -32,6 +32,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
       <OrganisationProfile org={org} />
       <div className="mt-8 flex gap-4">
         <Link
+          href={`/dashboard/organisations/${id}/data-audit`}
+          className="text-indigo-600 hover:underline"
+        >
+          Data Maturity Audit →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >
