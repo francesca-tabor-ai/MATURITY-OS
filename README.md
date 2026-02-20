@@ -29,7 +29,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-risk-assessment.sql`  
    `psql $DATABASE_URL -f scripts/schema-transformation-roadmap.sql`  
    `psql $DATABASE_URL -f scripts/schema-capability-gaps.sql`  
-   `psql $DATABASE_URL -f scripts/schema-industry-benchmarks.sql`
+   `psql $DATABASE_URL -f scripts/schema-industry-benchmarks.sql`  
+   `psql $DATABASE_URL -f scripts/schema-competitive-position.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -115,5 +116,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Queries:** `scripts/queries-maturity-distribution.sql` (latest maturity per org, portfolio by industry).
 - **API:** `GET /api/maturity-distribution?industry=` returns aggregated scores, statistical analysis, and list of industries for filter. Uses organisations the current user can access.
 - **UI:** Dashboard → “Maturity distribution”: `MaturityDistributionChart` (Recharts histograms for Data and AI maturity, industry filter, stats cards with mean/median/std/Q1–Q3/outliers). Page at `/dashboard/maturity-distribution`.
+
+### Module 3.3 – Competitive Position Analysis™
+
+- **Engine:** Compares an organisation’s data/AI maturity to competitors (portfolio or industry). `calculate_competitive_risk(orgData, orgAi, avgCompData, avgCompAi)` returns risk level (Low/Medium/High) and 0–100 score; `calculate_competitive_advantage(orgData, orgAi, competitors)` returns 0–100 advantage score; `runCompetitivePositionAnalysis(...)` produces full report with strengths/weaknesses. See `lib/competitive-position-engine.ts` and `lib/competitive-position-types.ts`.
+- **Storage:** `competitive_positions` (organisation_id, analysis_date, competitive_risk_level, competitive_risk_score, competitive_advantage_score, comparison_data JSONB). See `scripts/schema-competitive-position.sql` and `scripts/queries-competitive-position.sql`.
+- **API:** `GET /api/organisations/[id]/competitive-position?competitors=id1,id2` or `?industry=` — uses portfolio orgs (or industry filter), runs analysis, stores result, returns report + industries list.
+- **UI:** Organisation → “Competitive Position”: `CompetitivePositionDisplay` (advantage speedometer, risk badge, 2D matrix Data vs AI, comparison table, strengths/weaknesses, industry filter).
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
