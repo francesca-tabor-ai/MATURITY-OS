@@ -116,6 +116,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Data connectors →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/maturity-progress`}
+          className="text-indigo-600 hover:underline"
+        >
+          Maturity progress →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >

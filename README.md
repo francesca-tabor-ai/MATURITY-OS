@@ -34,7 +34,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-company-valuation.sql`  
    `psql $DATABASE_URL -f scripts/schema-acquisition-opportunities.sql`  
    `psql $DATABASE_URL -f scripts/schema-maturity-snapshots.sql`  
-   `psql $DATABASE_URL -f scripts/schema-data-connectors.sql`
+   `psql $DATABASE_URL -f scripts/schema-data-connectors.sql`  
+   `psql $DATABASE_URL -f scripts/schema-maturity-goals.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -163,5 +164,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `data_connectors` (organisation_id, connector_type, name, connection_details JSONB, last_sync_at, last_sync_status, last_sync_error). Credentials in connection_details; encrypt at application layer in production. See `scripts/schema-data-connectors.sql` and `scripts/queries-data-connectors.sql`.
 - **API:** `GET/POST /api/organisations/[id]/data-connectors` (list, create); `GET/PATCH/DELETE /api/organisations/[id]/data-connectors/[connectorId]`; `POST .../data-connectors/[connectorId]/sync` (run pipeline, update connector status, push snapshot to live maturity). Responses mask secrets.
 - **UI:** Organisation → “Data connectors”: `DataConnectorConfigurator` (tabs Snowflake/AWS/Salesforce, connection forms with validation, add connector; list of connectors with last sync status, Sync now, Remove). Page at `/dashboard/organisations/[id]/data-connectors`.
+
+### Module 5.3 – Maturity Progress Tracking™
+
+- **Logic:** `calculate_maturity_progress(history, periodStart, periodEnd)` computes start/end data and AI scores, percentage improvement, and milestones (significant score changes). `track_maturity_goals(goals, currentData, currentAi, history, periodMonths)` returns variance from target, projected date from progress rate, and on_track flag. See `lib/maturity-progress-service.ts` and `lib/maturity-progress-types.ts`.
+- **Storage:** `maturity_goals` (organisation_id, goal_type 'data'|'ai', target_score, target_date); UNIQUE(organisation_id, goal_type). See `scripts/schema-maturity-goals.sql` and `scripts/queries-maturity-progress.sql`.
+- **API:** `GET /api/organisations/[id]/maturity-progress?from=&to=` returns progress (improvement %, milestones), goals, goal_tracking (variance, projected date, on_track), current scores, and history for charts. `POST /api/organisations/[id]/maturity-progress` body `goal_type`, `target_score`, `target_date` to set/update a goal.
+- **UI:** Organisation → “Maturity progress”: `MaturityProgressTracker` (from/to date range, Update; improvement % cards; line graph of maturity trend; goals section with progress bars, Set goal form, on-track/behind and projected date). Page at `/dashboard/organisations/[id]/maturity-progress`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
