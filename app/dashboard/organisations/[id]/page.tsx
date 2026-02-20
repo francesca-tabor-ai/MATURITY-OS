@@ -74,6 +74,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Transformation Roadmap →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/capability-gaps`}
+          className="text-indigo-600 hover:underline"
+        >
+          Capability Gap Analysis →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >

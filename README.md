@@ -27,7 +27,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-financial-impact.sql`  
    `psql $DATABASE_URL -f scripts/schema-roi-investment.sql`  
    `psql $DATABASE_URL -f scripts/schema-risk-assessment.sql`  
-   `psql $DATABASE_URL -f scripts/schema-transformation-roadmap.sql`
+   `psql $DATABASE_URL -f scripts/schema-transformation-roadmap.sql`  
+   `psql $DATABASE_URL -f scripts/schema-capability-gaps.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -85,5 +86,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `transformation_roadmaps` (organisation_id, generation_date, inputs/roadmap JSONB); see `scripts/schema-transformation-roadmap.sql` and `scripts/queries-transformation-roadmap.sql`.
 - **API:** `POST/GET /api/organisations/[id]/roadmap` (generate and store roadmap, list history).
 - **UI:** Organisation → “Transformation Roadmap”: form (current/target maturity, prioritization, optional financial impact); `RoadmapDisplay` (timeline of phases, actions, cost and impact); roadmap history with switch.
+
+### Module 2.2 – Capability Gap Analysis™
+
+- **Engine:** Compares current data/AI maturity (Module 0.2 / 0.3) to ideal capabilities; `identify_capability_gaps(inputs)` returns missing capabilities (e.g. data pipeline automation, governance framework, model deployment); `prioritize_gaps(gaps)` assigns High/Medium/Low and groups into themes (Data foundation, Governance & quality, AI & automation, etc.). See `lib/capability-gap-engine.ts` and `lib/capability-gap-types.ts`.
+- **Storage:** `capability_gaps` (organisation_id, analysis_date, gap_description, priority_level, grouped_theme, dimension); see `scripts/schema-capability-gaps.sql` and `scripts/queries-capability-gaps.sql`.
+- **API:** `POST/GET /api/organisations/[id]/capability-gaps` (run analysis from data/AI maturity, list stored gaps).
+- **UI:** Organisation → “Capability Gap Analysis”: run from latest audits; `CapabilityGapDisplay` (radar chart current vs ideal, gaps by theme with priority, tag cloud); analysis history.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
