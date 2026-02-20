@@ -33,7 +33,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-competitive-position.sql`  
    `psql $DATABASE_URL -f scripts/schema-company-valuation.sql`  
    `psql $DATABASE_URL -f scripts/schema-acquisition-opportunities.sql`  
-   `psql $DATABASE_URL -f scripts/schema-maturity-snapshots.sql`
+   `psql $DATABASE_URL -f scripts/schema-maturity-snapshots.sql`  
+   `psql $DATABASE_URL -f scripts/schema-data-connectors.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -154,5 +155,13 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `maturity_snapshots` (organisation_id, snapshot_at, data_maturity_index, ai_maturity_score, metrics JSONB, source); `maturity_anomalies` (organisation_id, snapshot_at, anomaly_type, severity, score_type, details). See `scripts/schema-maturity-snapshots.sql` and `scripts/queries-maturity-snapshots.sql`.
 - **API:** `GET /api/organisations/[id]/live-maturity?detect_anomalies=1&limit=` returns `{ latest, history, anomalies }`. `GET /api/organisations/[id]/live-maturity-feed` streams Server-Sent Events (initial state then periodic updates). `POST /api/organisations/[id]/live-maturity` body: `data_maturity_index` + `ai_maturity_score`, or `sync_from_audits: true` (copy latest from data/AI audit results), or `incremental: true` + `update: { data_maturity_delta, ai_maturity_delta }`. Auth and org access required.
 - **UI:** Organisation → “Live maturity”: `LiveMaturityDashboard` (Sync from latest audits, optional SSE live feed, Refresh; current data/AI maturity cards; line chart of maturity over time; detected anomalies list with severity). Page at `/dashboard/organisations/[id]/live-maturity`.
+
+### Module 5.2 – Automated Data Connectors™
+
+- **Connectors:** TypeScript classes (stub implementations; replace with real SDKs in production): `SnowflakeConnector` (connect, listDatabases/Schemas/Tables, executeQuery, extractMaturityMetrics), `AWSConnector` (S3 metadata, Redshift, Glue, SageMaker metrics), `SalesforceConnector` (listObjects, query, API usage). See `lib/data-connectors/`.
+- **Pipeline:** `runDataConnectorPipeline(connectionDetails)` selects connector by type, extracts raw metrics, transforms to `StandardMaturityMetrics` (data_maturity_index, ai_maturity_score 0–100), returns result; caller (API) pushes to `recordSnapshot`. Retry and scheduling in pipeline. See `lib/data-connectors/pipeline.ts` and `transform.ts`.
+- **Storage:** `data_connectors` (organisation_id, connector_type, name, connection_details JSONB, last_sync_at, last_sync_status, last_sync_error). Credentials in connection_details; encrypt at application layer in production. See `scripts/schema-data-connectors.sql` and `scripts/queries-data-connectors.sql`.
+- **API:** `GET/POST /api/organisations/[id]/data-connectors` (list, create); `GET/PATCH/DELETE /api/organisations/[id]/data-connectors/[connectorId]`; `POST .../data-connectors/[connectorId]/sync` (run pipeline, update connector status, push snapshot to live maturity). Responses mask secrets.
+- **UI:** Organisation → “Data connectors”: `DataConnectorConfigurator` (tabs Snowflake/AWS/Salesforce, connection forms with validation, add connector; list of connectors with last sync status, Sync now, Remove). Page at `/dashboard/organisations/[id]/data-connectors`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
