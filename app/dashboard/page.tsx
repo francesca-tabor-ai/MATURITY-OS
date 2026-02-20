@@ -49,6 +49,12 @@ export default async function DashboardPage() {
         >
           Portfolio Intelligence →
         </Link>
+        <Link
+          href="/dashboard/acquisition-scanner"
+          className="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+        >
+          Acquisition Scanner →
+        </Link>
       </div>
     </div>
   );

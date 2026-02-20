@@ -31,7 +31,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-capability-gaps.sql`  
    `psql $DATABASE_URL -f scripts/schema-industry-benchmarks.sql`  
    `psql $DATABASE_URL -f scripts/schema-competitive-position.sql`  
-   `psql $DATABASE_URL -f scripts/schema-company-valuation.sql`
+   `psql $DATABASE_URL -f scripts/schema-company-valuation.sql`  
+   `psql $DATABASE_URL -f scripts/schema-acquisition-opportunities.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -138,5 +139,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Queries:** `scripts/queries-portfolio-intelligence.sql` (latest per org from each result table, portfolio list, top N by valuation/revenue, bottom N by maturity).
 - **API:** `GET /api/portfolio-intelligence?industry=` returns a single JSON: `data` (companies with all metrics), `performance` (portfolio KPIs and top/bottom lists), and `distribution` (histograms and stats for maturity charts). Auth: only the signed-in user can access their portfolio.
 - **UI:** Dashboard → “Portfolio Intelligence”: `PortfolioIntelligenceDashboard` (industry filter; KPI cards: company count, avg maturity, total revenue upside, total valuation upside; value creation section: revenue upside, profit expansion, cost reduction; Data and AI maturity histograms; risk exposure heatmap with company cards coloured by risk level; top by valuation upside, top by revenue upside, lowest maturity). Page at `/dashboard/portfolio-intelligence`. All data from one API call.
+
+### Module 4.3 – Acquisition Opportunity Scanner™
+
+- **Engine:** Identifies undervalued companies from current vs intrinsic value (maturity-adjusted valuation, Module 4.1). `identify_undervalued_companies(candidates, industryBenchmarks)` returns a list with an undervaluation score (0–100). `score_acquisition_targets(undervalued, candidatesByOrg)` assigns an acquisition attractiveness score (0–100) from undervaluation, growth potential (revenue upside), risk profile, and cost to improve maturity; returns a ranked list. `apply_acquisition_filters(candidates, filters)` filters by industry, valuation range, and maturity. See `lib/acquisition-scanner-engine.ts` and `lib/acquisition-scanner-types.ts`.
+- **Storage:** `acquisition_opportunities` (organisation_id, scan_date, undervaluation_score, acquisition_attractiveness_score, details JSONB). See `scripts/schema-acquisition-opportunities.sql` and `scripts/queries-acquisition-opportunities.sql`.
+- **API:** `GET /api/acquisition-scanner?industry=&min_valuation=&max_valuation=&min_data_maturity=&max_data_maturity=&min_ai_maturity=&max_ai_maturity=&save=true` — runs scanner on the user’s portfolio (using same data as Portfolio Intelligence), applies filters, identifies undervalued companies and scores them; optional `save=true` persists results. Returns ranked targets and industries list.
+- **UI:** Dashboard → “Acquisition Scanner”: `AcquisitionTargetDisplay` (filters: industry, min/max valuation, min data/AI maturity; “Save results to history” checkbox; Run scan; sortable table: company, attractiveness, undervaluation, valuation, upside %, maturity, risk). Page at `/dashboard/acquisition-scanner`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.

@@ -1,0 +1,52 @@
+-- Module 4.3: Acquisition Opportunity Scanner™ – reporting queries
+
+-- 1. Historical acquisition scans for an organisation
+-- SELECT id, scan_date, undervaluation_score, acquisition_attractiveness_score, details
+-- FROM acquisition_opportunities
+-- WHERE organisation_id = $1
+-- ORDER BY scan_date DESC
+-- LIMIT 20;
+
+-- 2. Latest scan result per organisation (for a given user's portfolio)
+-- WITH latest AS (
+--   SELECT DISTINCT ON (organisation_id) organisation_id, scan_date, undervaluation_score, acquisition_attractiveness_score, details
+--   FROM acquisition_opportunities
+--   WHERE organisation_id = ANY($1::uuid[])
+--   ORDER BY organisation_id, scan_date DESC
+-- )
+-- SELECT l.*, o.name, o.industry FROM latest l JOIN organisations o ON o.id = l.organisation_id
+-- ORDER BY l.acquisition_attractiveness_score DESC;
+
+-- 3. Filter targets by acquisition attractiveness score (e.g. top opportunities)
+-- SELECT ao.organisation_id, o.name, o.industry, ao.undervaluation_score, ao.acquisition_attractiveness_score, ao.scan_date
+-- FROM acquisition_opportunities ao
+-- JOIN organisations o ON o.id = ao.organisation_id
+-- WHERE ao.organisation_id = ANY($1::uuid[])
+--   AND ao.scan_date = (SELECT MAX(scan_date) FROM acquisition_opportunities WHERE organisation_id = ao.organisation_id)
+--   AND ao.acquisition_attractiveness_score >= $2
+-- ORDER BY ao.acquisition_attractiveness_score DESC;
+
+-- 4. Filter targets by undervaluation score
+-- SELECT ao.organisation_id, o.name, ao.undervaluation_score, ao.acquisition_attractiveness_score
+-- FROM acquisition_opportunities ao
+-- JOIN organisations o ON o.id = ao.organisation_id
+-- WHERE ao.organisation_id = ANY($1::uuid[])
+--   AND ao.scan_date = (SELECT MAX(scan_date) FROM acquisition_opportunities WHERE organisation_id = ao.organisation_id)
+--   AND ao.undervaluation_score >= $2
+-- ORDER BY ao.undervaluation_score DESC;
+
+-- 5. Trends: average undervaluation and attractiveness by industry (latest scan per org)
+-- WITH latest AS (
+--   SELECT DISTINCT ON (organisation_id) organisation_id, undervaluation_score, acquisition_attractiveness_score
+--   FROM acquisition_opportunities
+--   WHERE scan_date >= NOW() - INTERVAL '1 year'
+--   ORDER BY organisation_id, scan_date DESC
+-- )
+-- SELECT o.industry, COUNT(*) AS org_count,
+--        AVG(l.undervaluation_score) AS avg_undervaluation,
+--        AVG(l.acquisition_attractiveness_score) AS avg_attractiveness
+-- FROM latest l
+-- JOIN organisations o ON o.id = l.organisation_id
+-- WHERE o.industry IS NOT NULL AND TRIM(o.industry) != ''
+-- GROUP BY o.industry
+-- ORDER BY avg_attractiveness DESC;
