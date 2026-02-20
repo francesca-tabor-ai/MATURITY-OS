@@ -196,4 +196,18 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **API:** `GET /api/organisations/[id]/digital-twin` returns current twin state (built from latest maturity, financial, risk, capability, roadmap data). `POST` body `{ action: 'simulate'|'optimize'|'save_snapshot', ... }`: simulate (future_months, interventions, save?), optimize (goal), or save current state with optional label.
 - **UI:** Organisation → “Digital twin”: `DigitalTwinViewer` (current state KPIs, radar, node/edge graph; simulate future state; run path optimization; view recommended plan with trade-offs and risks). Page at `/dashboard/organisations/[id]/digital-twin`.
 
-Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
+### Platform Infrastructure — API Layer (v1)
+
+- **Gateway:** Central auth (NextAuth session), org-based access control, rate limiting (in-memory per user/IP), and standard error responses. See `lib/api-gateway.ts`.
+- **Base path:** All v1 APIs live under `/api/v1`. Use US spelling in paths: `organizations/{org_id}/...`.
+- **Data Maturity:** `POST /api/v1/organizations/{org_id}/data-maturity/audit`, `GET .../data-maturity/score`, `GET .../data-maturity/history`.
+- **AI Maturity:** `POST .../ai-maturity/audit`, `GET .../ai-maturity/score`, `GET .../ai-maturity/history`.
+- **Financial Impact:** `POST .../financial-impact/calculate`, `GET .../financial-impact/results`. **ROI Calculator:** `POST .../roi-calculator/calculate`, `GET .../roi-calculator/results`.
+- **Risk Assessment:** `POST .../risk-assessment/calculate`, `GET .../risk-assessment/results`.
+- **Roadmap:** `POST .../roadmap/generate`, `GET .../roadmap/latest`.
+- **Simulations:** `POST .../simulate/ai-investment`, `POST .../simulate/strategic-decision`.
+- **External:** `GET /api/v1/investors/{investor_id}/portfolio-summary` (aggregated portfolio for that user), `GET /api/v1/consultants/{consultant_id}/organization-report/{org_id}` (org report; caller must be consultant and have org access).
+- **OpenAPI:** `GET /api/v1/openapi` returns OpenAPI 3.0 spec. Use with Swagger UI or any OpenAPI client.
+- **SQL:** `scripts/queries-api-optimized.sql` (indexed retrieval examples), `scripts/transactions-api.sql` (transaction patterns for writes).
+
+Deploy to Vercel with the same env vars (`DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, etc.); use [vercel.json](vercel.json) for security headers. API routes run as serverless functions; for cross-instance rate limiting consider Upstash Redis.
