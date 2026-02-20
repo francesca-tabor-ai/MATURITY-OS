@@ -202,12 +202,19 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Base path:** All v1 APIs live under `/api/v1`. Use US spelling in paths: `organizations/{org_id}/...`.
 - **Data Maturity:** `POST /api/v1/organizations/{org_id}/data-maturity/audit`, `GET .../data-maturity/score`, `GET .../data-maturity/history`.
 - **AI Maturity:** `POST .../ai-maturity/audit`, `GET .../ai-maturity/score`, `GET .../ai-maturity/history`.
-- **Financial Impact:** `POST .../financial-impact/calculate`, `GET .../financial-impact/results`. **ROI Calculator:** `POST .../roi-calculator/calculate`, `GET .../roi-calculator/results`.
+- **Financial Impact:** `POST .../financial-impact/calculate`, `GET .../financial-impact/results`. **Financial Modelling Engine:** `POST .../financial-model/calculate` runs the orchestrator (RevenueImpactService, CostImpactService, ProfitImpactService) and returns a full report; optional `persist` writes to `financial_impact_results`. **ROI Calculator:** `POST .../roi-calculator/calculate`, `GET .../roi-calculator/results`.
 - **Risk Assessment:** `POST .../risk-assessment/calculate`, `GET .../risk-assessment/results`.
 - **Roadmap:** `POST .../roadmap/generate`, `GET .../roadmap/latest`.
 - **Simulations:** `POST .../simulate/ai-investment`, `POST .../simulate/strategic-decision`.
 - **External:** `GET /api/v1/investors/{investor_id}/portfolio-summary` (aggregated portfolio for that user), `GET /api/v1/consultants/{consultant_id}/organization-report/{org_id}` (org report; caller must be consultant and have org access).
 - **OpenAPI:** `GET /api/v1/openapi` returns OpenAPI 3.0 spec. Use with Swagger UI or any OpenAPI client.
 - **SQL:** `scripts/queries-api-optimized.sql` (indexed retrieval examples), `scripts/transactions-api.sql` (transaction patterns for writes).
+
+### Platform Infrastructure — Financial Modelling Engine
+
+- **Services (TypeScript):** `RevenueImpactService` (current revenue, data/AI maturity, optional industry growth rate → projected revenue increase, total potential revenue; supports maturity-gap and growth-rate models). `CostImpactService` (operational cost, headcount, data/AI maturity → estimated cost savings, areas of reduction: automation, process_efficiency, resource_optimization, other). `ProfitImpactService` (revenue + cost outputs, current profit, optional tax rate → net profit increase, tax-adjusted increase). See `lib/financial-modelling-engine.ts` and `lib/financial-modelling-types.ts`.
+- **Orchestrator:** `FinancialModelOrchestrator` runs the three services, aggregates into `FinancialImpactReport`, and handles per-service errors with partial results. `runFinancialModel(inputs)` one-shot helper.
+- **API:** `POST /api/v1/organizations/{org_id}/financial-model/calculate` — body: revenue, profit_margin_pct, headcount, data_maturity_index, ai_maturity_score, optional operational_cost, industry_growth_rate_pct, tax_rate_pct, industry_benchmark_id, persist (default true). Returns full report; when persist is true, writes to `financial_impact_results` with orchestrator details in JSONB.
+- **PostgreSQL:** `scripts/financial-modelling-persistence.sql` defines `insert_financial_impact_result(...)` for inserts. `scripts/queries-financial-modelling.sql` has optimized queries for latest metrics and historical trend; index on `(organisation_id, created_at DESC)` recommended.
 
 Deploy to Vercel with the same env vars (`DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, etc.); use [vercel.json](vercel.json) for security headers. API routes run as serverless functions; for cross-instance rate limiting consider Upstash Redis.

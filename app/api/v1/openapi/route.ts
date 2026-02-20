@@ -104,6 +104,17 @@ export async function GET() {
           responses: { '200': { description: 'Latest result' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
         },
       },
+      '/organizations/{org_id}/financial-model/calculate': {
+        post: {
+          summary: 'Run financial model (revenue, cost, profit impact orchestration)',
+          operationId: 'postFinancialModelCalculate',
+          tags: ['Financial Modelling'],
+          security: [{ sessionCookie: [] }],
+          parameters: [{ name: 'org_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { revenue: { type: 'number' }, profit_margin_pct: { type: 'number' }, headcount: { type: 'integer' }, data_maturity_index: { type: 'number' }, ai_maturity_score: { type: 'number' }, operational_cost: { type: 'number' }, industry_growth_rate_pct: { type: 'number' }, tax_rate_pct: { type: 'number' }, industry_benchmark_id: { type: 'string' }, persist: { type: 'boolean' } } } } } },
+          responses: { '200': { description: 'Financial impact report (revenue_impact, cost_impact, profit_impact, summary)' }, '400': { description: 'Invalid input' }, '401': { description: 'Unauthorized' }, '403': { description: 'Forbidden' } },
+        },
+      },
       '/organizations/{org_id}/roi-calculator/calculate': {
         post: {
           summary: 'Calculate ROI and payback',
