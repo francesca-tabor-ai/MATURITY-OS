@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "rules": [
+    { "id": "ai-native", "name": "AI-Native Leader", "data_index_min": 75, "data_index_max": 100, "ai_score_min": 75, "ai_score_max": 100, "classification_string": "AI-Native Leader", "risk": "Low", "opportunity": "Sustain Excellence" },
+    { "id": "data-driven-innovator", "name": "Data-Driven Innovator", "data_index_min": 75, "data_index_max": 100, "ai_score_min": 40, "ai_score_max": 74.99, "classification_string": "Data-Driven Innovator", "risk": "Low", "opportunity": "AI Adoption Acceleration" },
+    { "id": "ai-first-transformer", "name": "AI-First Transformer", "data_index_min": 40, "data_index_max": 74.99, "ai_score_min": 75, "ai_score_max": 100, "classification_string": "AI-First Transformer", "risk": "Medium", "opportunity": "Data Infrastructure Upgrade" },
+    { "id": "intelligent-operator", "name": "Intelligent Operator", "data_index_min": 55, "data_index_max": 100, "ai_score_min": 45, "ai_score_max": 74.99, "classification_string": "Intelligent Operator", "risk": "Low", "opportunity": "Data & AI Balance" },
+    { "id": "scaling-up", "name": "Scaling Up", "data_index_min": 40, "data_index_max": 74.99, "ai_score_min": 40, "ai_score_max": 74.99, "classification_string": "Scaling Up", "risk": "Medium", "opportunity": "Scale Data & AI" },
+    { "id": "emerging-explorer", "name": "Emerging Explorer", "data_index_min": 20, "data_index_max": 54.99, "ai_score_min": 20, "ai_score_max": 54.99, "classification_string": "Emerging Explorer", "risk": "High", "opportunity": "Foundation First" },
+    { "id": "data-curious", "name": "Data-Curious", "data_index_min": 40, "data_index_max": 100, "ai_score_min": 0, "ai_score_max": 39.99, "classification_string": "Data-Curious", "risk": "Medium", "opportunity": "Pilot AI" },
+    { "id": "ai-experimenter", "name": "AI Experimenter", "data_index_min": 0, "data_index_max": 39.99, "ai_score_min": 40, "ai_score_max": 100, "classification_string": "AI Experimenter", "risk": "High", "opportunity": "Quick Wins on Data" },
+    { "id": "early-stage", "name": "Early Stage", "data_index_min": 0, "data_index_max": 39.99, "ai_score_min": 0, "ai_score_max": 39.99, "classification_string": "Early Stage", "risk": "High", "opportunity": "Foundation First" }
+  ]
+}
