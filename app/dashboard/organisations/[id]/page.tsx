@@ -104,6 +104,12 @@ export default async function OrganisationPage({ params }: { params: Promise<{ i
           Valuation adjustment →
         </Link>
         <Link
+          href={`/dashboard/organisations/${id}/live-maturity`}
+          className="text-indigo-600 hover:underline"
+        >
+          Live maturity →
+        </Link>
+        <Link
           href={`/dashboard/organisations/${id}/team`}
           className="text-indigo-600 hover:underline"
         >

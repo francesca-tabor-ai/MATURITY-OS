@@ -32,7 +32,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-industry-benchmarks.sql`  
    `psql $DATABASE_URL -f scripts/schema-competitive-position.sql`  
    `psql $DATABASE_URL -f scripts/schema-company-valuation.sql`  
-   `psql $DATABASE_URL -f scripts/schema-acquisition-opportunities.sql`
+   `psql $DATABASE_URL -f scripts/schema-acquisition-opportunities.sql`  
+   `psql $DATABASE_URL -f scripts/schema-maturity-snapshots.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -146,5 +147,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `acquisition_opportunities` (organisation_id, scan_date, undervaluation_score, acquisition_attractiveness_score, details JSONB). See `scripts/schema-acquisition-opportunities.sql` and `scripts/queries-acquisition-opportunities.sql`.
 - **API:** `GET /api/acquisition-scanner?industry=&min_valuation=&max_valuation=&min_data_maturity=&max_data_maturity=&min_ai_maturity=&max_ai_maturity=&save=true` — runs scanner on the user’s portfolio (using same data as Portfolio Intelligence), applies filters, identifies undervalued companies and scores them; optional `save=true` persists results. Returns ranked targets and industries list.
 - **UI:** Dashboard → “Acquisition Scanner”: `AcquisitionTargetDisplay` (filters: industry, min/max valuation, min data/AI maturity; “Save results to history” checkbox; Run scan; sortable table: company, attractiveness, undervaluation, valuation, upside %, maturity, risk). Page at `/dashboard/acquisition-scanner`.
+
+### Module 5.1 – Live Maturity Monitoring™
+
+- **Service:** Time-series snapshots and anomaly detection. `recordSnapshot(orgId, data, userId)` writes to `maturity_snapshots`. `update_maturity_scores_incrementally(orgId, partialUpdate, userId)` applies deltas (or absolute values) to the latest snapshot and records a new one. `detect_maturity_anomalies(history)` uses a moving window (5 points), mean and standard deviation; flags SPIKE/DROP with severity LOW/MEDIUM/HIGH. `getLiveMaturityState(orgId, options)` returns latest, history, and anomalies; optionally runs detection and stores in `maturity_anomalies`. See `lib/live-maturity-service.ts` and `lib/live-maturity-types.ts`.
+- **Storage:** `maturity_snapshots` (organisation_id, snapshot_at, data_maturity_index, ai_maturity_score, metrics JSONB, source); `maturity_anomalies` (organisation_id, snapshot_at, anomaly_type, severity, score_type, details). See `scripts/schema-maturity-snapshots.sql` and `scripts/queries-maturity-snapshots.sql`.
+- **API:** `GET /api/organisations/[id]/live-maturity?detect_anomalies=1&limit=` returns `{ latest, history, anomalies }`. `GET /api/organisations/[id]/live-maturity-feed` streams Server-Sent Events (initial state then periodic updates). `POST /api/organisations/[id]/live-maturity` body: `data_maturity_index` + `ai_maturity_score`, or `sync_from_audits: true` (copy latest from data/AI audit results), or `incremental: true` + `update: { data_maturity_delta, ai_maturity_delta }`. Auth and org access required.
+- **UI:** Organisation → “Live maturity”: `LiveMaturityDashboard` (Sync from latest audits, optional SSE live feed, Refresh; current data/AI maturity cards; line chart of maturity over time; detected anomalies list with severity). Page at `/dashboard/organisations/[id]/live-maturity`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
