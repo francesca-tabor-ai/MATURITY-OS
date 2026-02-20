@@ -36,7 +36,8 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
    `psql $DATABASE_URL -f scripts/schema-maturity-snapshots.sql`  
    `psql $DATABASE_URL -f scripts/schema-data-connectors.sql`  
    `psql $DATABASE_URL -f scripts/schema-maturity-goals.sql`  
-   `psql $DATABASE_URL -f scripts/schema-ai-investment-simulations.sql`
+   `psql $DATABASE_URL -f scripts/schema-ai-investment-simulations.sql`  
+   `psql $DATABASE_URL -f scripts/schema-strategic-simulations.sql`
 4. Run the app: `npm run dev`
 
 ### Core Module 0.1 – Identity & Organisation Management
@@ -179,5 +180,12 @@ View your app in AI Studio: https://ai.studio/apps/3a090cbd-4aeb-4046-8a05-98a65
 - **Storage:** `ai_investment_simulations` (organisation_id, simulation_date, investment_amount, target_area, time_horizon_years, simulated_*_improvement, projected_profit_increase, projected_revenue_increase, details JSONB). See `scripts/schema-ai-investment-simulations.sql` and `scripts/queries-ai-investment-simulations.sql`.
 - **API:** `GET /api/organisations/[id]/investment-simulation` returns current data/AI maturity and optional revenue/margin for prefill. `POST` body `{ scenarios: [...], save?: boolean }` runs simulation for each scenario, optionally compares and saves; returns results and comparison.
 - **UI:** Organisation → “Investment simulation”: `InvestmentSimulationForm` (context display; add/remove scenarios with investment amount, target area, time horizon; Run simulation; save checkbox; bar chart of projected profit by scenario with best highlighted; results table with return/unit, time to benefit, risk). Page at `/dashboard/organisations/[id]/investment-simulation`.
+
+### Module 6.2 – Strategic Decision Simulator™
+
+- **Engine:** `define_strategic_scenario(name, parameters)` builds a scenario (investment_level, adoption_pace, market_conditions, competitive_action, horizon_years). `StrategicDecisionSimulator` class takes scenario + context (current maturity, revenue, profit); runs multi-factor simulation over horizon; returns yearly outcomes (data/AI maturity, revenue, profit, valuation, competitive_score, risk_score). `analyze_simulation_outcomes(outcomes)` compares results, picks best by profit, by risk, and balanced; returns recommendations with trade-offs and risks. See `lib/strategic-simulation-engine.ts` and `lib/strategic-simulation-types.ts`.
+- **Storage:** `strategic_simulations` (organisation_id, simulation_date, scenario_name, scenario_parameters JSONB, simulated_outcomes JSONB). See `scripts/schema-strategic-simulations.sql` and `scripts/queries-strategic-simulations.sql`.
+- **API:** `GET /api/organisations/[id]/strategic-simulation` returns context (current maturity, revenue, profit). `POST` body `{ scenarios: [{ name, parameters }], save?: boolean }` runs simulator for each scenario, runs outcome analysis, optionally saves; returns outcomes and analysis.
+- **UI:** Organisation → “Strategic simulator”: `ScenarioBuilder` (add/remove scenarios; name, investment level, pace, market, competition, years; Run simulation); `ScenarioComparisonDisplay` (multi-line charts: maturity and profit over time; bar chart end-state profit; summary table; recommendations). Page at `/dashboard/organisations/[id]/strategic-simulation`.
 
 Deploy to Vercel with the same env vars; use [vercel.json](vercel.json) for security headers.
